@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        nativeInit();
 
         // Example of a call to a native method
         TextView tv = findViewById(R.id.sample_text);
@@ -59,14 +60,51 @@ public class MainActivity extends Activity {
     }
 
     private void startThreads(int threads,int iterations){
+//        javaThreads(threads,iterations);
+        posixThreads(threads,iterations);
+    }
+
+    private void javaThreads(int threads,final int iterations){
+        for(int i=0;i<threads;i++){
+            final int id =i;
+            Thread thread = new Thread(){
+                @Override
+                public void run() {
+                    nativeWorker(id,iterations);
+                }
+            };
+            thread.start();
+        }
 
     }
 
+    private void onNativeMessage(final String message){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                logView.append(message+"\n");
+            }
+        });
+    }
 
+    @Override
+    protected void onDestroy() {
+        nativeFree();
+
+        super.onDestroy();
+    }
 
     /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
     public native String stringFromJNI();
+    public native void nativeInit();
+    public native void nativeFree();
+    public native void nativeWorker(int id,int iterations);
+
+    /*
+    * 使用POSIX线程
+    * */
+    public native void posixThreads(int threads,int iterations);
 }
