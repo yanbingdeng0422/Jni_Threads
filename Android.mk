@@ -24,4 +24,6 @@ LOCAL_SDK_VERSION := current
 LOCAL_DEX_PREOPT := false
 include $(BUILD_PACKAGE)
 
+LOCAL_CPPFLAGS += -std=c++11
+
 include $(call all-makefiles-under,$(LOCAL_PATH))
